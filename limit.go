@@ -9,7 +9,7 @@ import (
 type (
 	// TabRole 角色
 	TabRole struct {
-		ID   bson.ObjectId `bson:'_id',json:'id'`
+		ID   bson.ObjectId `bson:"_id",json:"id"`
 		Name string        `json:"name"`
 		Tip  string        `json:"tip"`
 	}
