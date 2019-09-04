@@ -14,9 +14,9 @@ type (
 	// TabUser 用户
 	TabUser struct {
 		ID         int32     `xorm:"id" json:"id"`
-		RoleID     int32     `json:"role_id" xorm:"role_id"`
-		Account    string    `json:"account"`
-		Email      string    `json:"email"`
+		RoleID     int32     `json:"role_id" xorm:"role_id" sql:"DEFAULT:0"`
+		Account    string    `json:"account" sql:"DEFAULT:"`
+		Email      string    `json:"email" sql:"DEFAULT:"`
 		Phone      string    `json:"phone"`
 		Pwd        string    `json:"pwd"`
 		Nick       string    `json:"nick"`
@@ -24,8 +24,8 @@ type (
 		Birthday   int64     `json:"birthday"`
 		Status     int       `json:"status"`
 		IsDelete   bool      `json:"is_delete" xorm:"is_delete"`
-		RegistTime time.Time `json:"regist_time" xorm:"regist_time"`
-		ActiveTime time.Time `json:"active_time" xorm:"active_time"`
+		RegistTime time.Time `json:"regist_time" xorm:"timestamp regist_time" sql:"DEFAULT:current_timestamp"`
+		ActiveTime time.Time `json:"active_time" xorm:"timestamp active_time" sql:"DEFAULT:current_timestamp"`
 	}
 	// TabMenu 菜单
 	TabMenu struct {
