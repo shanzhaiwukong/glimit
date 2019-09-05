@@ -64,8 +64,39 @@ type (
 	}
 )
 
-// GetRoles 获取角色列表
-func GetRoles(db *xorm.Engine) (roles []*TabRole, err error) {
+// GetRoleOneByID 根据id获取具体角色
+func GetRoleOneByID(db *xorm.Engine, roleID int32) (role *TabRole, err error) {
+	role = &TabRole{ID: roleID}
+	_, err = db.Get(role)
+	return
+}
+
+// GetRoleAll 获取所有角色
+func GetRoleAll(db *xorm.Engine) (roles []*TabRole, err error) {
 	err = db.Find(&roles)
+	return
+}
+
+// GetMenuAll 获取所有菜单
+func GetMenuAll(db *xorm.Engine) (menus []*TabMenu, err error) {
+	err = db.Find(&menus)
+	return
+}
+
+// GetActionAll 获取所有行为
+func GetActionAll(db *xorm.Engine) (actions []*TabAction, err error) {
+	err = db.Find(&actions)
+	return
+}
+
+// GetRoleMenus 获取角色菜单
+func GetRoleMenus(db *xorm.Engine, roleID int32) (menus []*TabMenu, err error) {
+	err = db.SQL(`select * from tab_menu where FIND_IN_SET(id,(select replace(replace((select menu_ids from tab_role_menu where role_id=?),'[',''),']','')))`, roleID).Find(&menus)
+	return
+}
+
+// GetRoleActions 获取桔色行为
+func GetRoleActions(db *xorm.Engine, roleID int32) (actions []*TabAction, err error) {
+	err = db.SQL(`select * from tab_action where FIND_IN_SET(id,(select replace(replace((select action_ids from tab_role_action where role_id=?),'[',''),']','')))`, roleID).Find(&actions)
 	return
 }
