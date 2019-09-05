@@ -1,6 +1,7 @@
 package glimit
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -64,10 +65,53 @@ type (
 	}
 )
 
-// GetRoleOneByID 根据id获取具体角色
-func GetRoleOneByID(db *xorm.Engine, roleID int32) (role *TabRole, err error) {
+// Sync2Default 同步数据库(创建)
+func Sync2Default(db *xorm.Engine) error {
+	return db.Sync2(&TabRole{}, &TabUser{}, &TabMenu{}, &TabAction{}, &TabRoleMenu{}, &TabRoleAction{})
+}
+
+// GetUserByID 根据id获取用户详情
+func GetUserByID(db *xorm.Engine, userID int32) (user *TabUser) {
+	user = &TabUser{ID: userID}
+	if b, err := db.Get(user); !b || err != nil {
+		user = nil
+	}
+	return
+}
+
+// GetUserByAccountPwd 根据帐号密码获取用户详情
+func GetUserByAccountPwd(db *xorm.Engine, account, pwd string) (user *TabUser) {
+	user = &TabUser{Account: account, Pwd: pwd}
+	if b, err := db.Get(user); !b || err != nil {
+		user = nil
+	}
+	return
+}
+
+// GetUserByEmailPwd 根据邮箱密码获取用户详情
+func GetUserByEmailPwd(db *xorm.Engine, email, pwd string) (user *TabUser) {
+	user = &TabUser{Email: email, Pwd: pwd}
+	if b, err := db.Get(user); !b || err != nil {
+		user = nil
+	}
+	return
+}
+
+// GetUserByPhonePwd 根据手机号密码获取用户详情
+func GetUserByPhonePwd(db *xorm.Engine, phone, pwd string) (user *TabUser) {
+	user = &TabUser{Phone: phone, Pwd: pwd}
+	if b, err := db.Get(user); !b || err != nil {
+		user = nil
+	}
+	return
+}
+
+// GetRoleByID 根据id获取角色详情
+func GetRoleByID(db *xorm.Engine, roleID int32) (role *TabRole) {
 	role = &TabRole{ID: roleID}
-	_, err = db.Get(role)
+	if b, err := db.Get(role); !b || err != nil {
+		role = nil
+	}
 	return
 }
 
@@ -77,9 +121,27 @@ func GetRoleAll(db *xorm.Engine) (roles []*TabRole, err error) {
 	return
 }
 
+// GetMenuByID 根据id获取菜单详情
+func GetMenuByID(db *xorm.Engine, menuID int32) (menu *TabMenu) {
+	menu = &TabMenu{ID: menuID}
+	if b, err := db.Get(menu); !b || err != nil {
+		menu = nil
+	}
+	return
+}
+
 // GetMenuAll 获取所有菜单
 func GetMenuAll(db *xorm.Engine) (menus []*TabMenu, err error) {
 	err = db.Find(&menus)
+	return
+}
+
+// GetActionByID 根据id获取行为详情
+func GetActionByID(db *xorm.Engine, actionID int32) (action *TabAction) {
+	action = &TabAction{ID: actionID}
+	if b, err := db.Get(action); !b || err != nil {
+		action = nil
+	}
 	return
 }
 
@@ -95,8 +157,18 @@ func GetRoleMenus(db *xorm.Engine, roleID int32) (menus []*TabMenu, err error) {
 	return
 }
 
-// GetRoleActions 获取桔色行为
+// GetRoleActions 获取角色行为
 func GetRoleActions(db *xorm.Engine, roleID int32) (actions []*TabAction, err error) {
 	err = db.SQL(`select * from tab_action where FIND_IN_SET(id,(select replace(replace((select action_ids from tab_role_action where role_id=?),'[',''),']','')))`, roleID).Find(&actions)
 	return
+}
+
+// CheckURLInActions 检查url是否在行为集合中
+func CheckURLInActions(url string, actions []*TabAction) bool {
+	for _, a := range actions {
+		if a != nil && strings.ToLower(a.Href) == strings.ToLower(url) {
+			return true
+		}
+	}
+	return false
 }
