@@ -2,6 +2,8 @@ package glimit
 
 import (
 	"time"
+
+	"github.com/go-xorm/xorm"
 )
 
 type (
@@ -61,3 +63,9 @@ type (
 		ActionIDs []int32 `json:"action_ids" xorm:"action_ids"`
 	}
 )
+
+// GetRoles 获取角色列表
+func GetRoles(db *xorm.Engine) (roles []*TabRole, err error) {
+	err = db.Find(&roles)
+	return
+}
