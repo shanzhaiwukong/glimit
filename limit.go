@@ -65,6 +65,33 @@ type (
 	}
 )
 
+type (
+	// VUserRole 用户角色视图
+	VUserRole struct {
+		*TabUser `json:"user" xorm:"extends"`
+		*TabRole `json:"role" xorm:"extends"`
+	}
+	// VUserRoleMenu 用户角色菜单视图
+	VUserRoleMenu struct {
+		*TabUser `json:"user" xorm:"extends" `
+		*TabRole `json:"role" xorm:"extends"`
+		Menus    []*TabMenu `json:"menus"`
+	}
+	// VUserRoleAction 用户角色行为视图
+	VUserRoleAction struct {
+		*TabUser `json:"user" xorm:"extends"`
+		*TabRole `json:"role" xorm:"extends"`
+		Actions  []*TabAction `json:"actions"`
+	}
+	//VUserRoleMenuAction 用户角色菜单行为视图
+	VUserRoleMenuAction struct {
+		*TabUser `json:"user" xorm:"extends"`
+		*TabRole `json:"role" xorm:"extends"`
+		Menus    []*TabMenu   `json:"menus"`
+		Actions  []*TabAction `json:"actions"`
+	}
+)
+
 // Sync2Default 同步数据库(创建)
 func Sync2Default(db *xorm.Engine) error {
 	return db.Sync2(&TabRole{}, &TabUser{}, &TabMenu{}, &TabAction{}, &TabRoleMenu{}, &TabRoleAction{})
@@ -153,13 +180,13 @@ func GetActionAll(db *xorm.Engine) (actions []*TabAction, err error) {
 
 // GetRoleMenus 获取角色菜单
 func GetRoleMenus(db *xorm.Engine, roleID int32) (menus []*TabMenu, err error) {
-	err = db.SQL(`select * from tab_menu where FIND_IN_SET(id,(select replace(replace((select menu_ids from tab_role_menu where role_id=?),'[',''),']','')))`, roleID).Find(&menus)
+	err = db.SQL(`select * from tab_menu where FIND_IN_SET(id,(select replace(replace((select menu_ids from tab_role_menu where role_id=? limit 1),'[',''),']','')))`, roleID).Find(&menus)
 	return
 }
 
 // GetRoleActions 获取角色行为
 func GetRoleActions(db *xorm.Engine, roleID int32) (actions []*TabAction, err error) {
-	err = db.SQL(`select * from tab_action where FIND_IN_SET(id,(select replace(replace((select action_ids from tab_role_action where role_id=?),'[',''),']','')))`, roleID).Find(&actions)
+	err = db.SQL(`select * from tab_action where FIND_IN_SET(id,(select replace(replace((select action_ids from tab_role_action where role_id=? limit 1),'[',''),']','')))`, roleID).Find(&actions)
 	return
 }
 
@@ -171,4 +198,64 @@ func CheckURLInActions(url string, actions []*TabAction) bool {
 		}
 	}
 	return false
+}
+
+// GetVUserRoleList 获取用户角色列表详情
+func GetVUserRoleList(db *xorm.Engine) (list []*VUserRole, err error) {
+	err = db.SQL("select a.*,b.* from tab_user a left join tab_role b on a.role_id=b.id order by a.id desc").Find(&list)
+	return
+}
+
+// GetVUserRoleByUID 根据用户ID获取用户角色详情
+func GetVUserRoleByUID(db *xorm.Engine, uid int32) (one *VUserRole, err error) {
+	list := make([]*VUserRole, 0)
+	err = db.SQL("select a.*,b.* from tab_user a left join tab_role b on a.role_id=b.id where a.id=?", uid).Find(&list)
+	if len(list) > 0 {
+		one = list[0]
+	}
+	return
+}
+
+// GetVUserRoleMenuByUID 根据用户ID获取用户角色及菜单列表
+func GetVUserRoleMenuByUID(db *xorm.Engine, uid int32) (*VUserRoleMenu, error) {
+	res := &VUserRoleMenu{}
+	if ur, err := GetVUserRoleByUID(db, uid); err == nil && ur != nil {
+		res.TabUser = ur.TabUser
+		res.TabRole = ur.TabRole
+		menus, _ := GetRoleMenus(db, ur.TabRole.ID)
+		res.Menus = menus
+		return res, nil
+	} else {
+		return nil, err
+	}
+}
+
+// GetVUserRoleActionByUID 根据用户ID获取用户角色及行为列表
+func GetVUserRoleActionByUID(db *xorm.Engine, uid int32) (*VUserRoleAction, error) {
+	res := &VUserRoleAction{}
+	if ur, err := GetVUserRoleByUID(db, uid); err == nil && ur != nil {
+		res.TabUser = ur.TabUser
+		res.TabRole = ur.TabRole
+		actions, _ := GetRoleActions(db, ur.TabRole.ID)
+		res.Actions = actions
+		return res, nil
+	} else {
+		return nil, err
+	}
+}
+
+// GetVUserRoleMenuActionByUID 根据用户ID获取用户角色菜单及行为列表
+func GetVUserRoleMenuActionByUID(db *xorm.Engine, uid int32) (*VUserRoleMenuAction, error) {
+	res := &VUserRoleMenuAction{}
+	if ur, err := GetVUserRoleByUID(db, uid); err == nil && ur != nil {
+		res.TabUser = ur.TabUser
+		res.TabRole = ur.TabRole
+		menus, _ := GetRoleMenus(db, ur.TabRole.ID)
+		res.Menus = menus
+		actions, _ := GetRoleActions(db, ur.TabRole.ID)
+		res.Actions = actions
+		return res, nil
+	} else {
+		return nil, err
+	}
 }
