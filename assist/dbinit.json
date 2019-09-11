@@ -1,0 +1,27 @@
+{
+    "roles":[
+        {"name":"system manager"}
+    ],"users":[
+        {"role_id":1,"account":"admin","pwd":"0123456","nick":"boss","status":1}
+    ],"menus":[
+        {"parent_id":0,"name":"back home","href":"/"},
+        {"parent_id":0,"name":"power control","href":"javascript:void(0)"},
+        {"parent_id":2,"name":"role manager","href":"/admin/role"},
+        {"parent_id":2,"name":"menu manager","href":"/admin/menu"},
+        {"parent_id":2,"name":"action manager","href":"/admin/action"}
+    ],"actions":[
+        {"menu_id":3,"name":"add","href":"/admin/role/add"},
+        {"menu_id":3,"name":"delete","href":"/admin/role/delete"},
+        {"menu_id":3,"name":"edit","href":"/admin/role/edit"},
+        {"menu_id":4,"name":"add","href":"/admin/menu/add"},
+        {"menu_id":4,"name":"delete","href":"/admin/menu/delete"},
+        {"menu_id":4,"name":"edit","href":"/admin/menu/edit"},
+        {"menu_id":5,"name":"add","href":"/admin/action/add"},
+        {"menu_id":5,"name":"delete","href":"/admin/action/delete"},
+        {"menu_id":5,"name":"edit","href":"/admin/action/edit"}
+    ],"role_menu":[
+        {"role_id":1,"menu_ids":[1,2,3,4,5]}
+    ],"role_action":[
+        {"role_id":1,"action_ids":[1,2,3,4,5,6,7,8,9]}
+    ]
+}
