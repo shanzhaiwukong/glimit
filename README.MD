@@ -4,6 +4,14 @@
 
 ### Example
 ``` golang
+type dataDefault struct {
+	Roles      []*TabRole       `json:"roles"`
+	Users      []*TabUser       `json:"users"`
+	Menus      []*TabMenu       `json:"menus"`
+	Actions    []*TabAction     `json:"actions"`
+	RoleMenu   []*TabRoleMenu   `json:"role_menu"`
+	RoleAction []*TabRoleAction `json:"role_action"`
+}
 //初始化数据
 func loadData() {
 	v := new(dataDefault)
