@@ -59,7 +59,7 @@ type (
 
 	// TabRoleAction 角色行为
 	TabRoleAction struct {
-		ID        int32   `xorm:"id" json:"id"`
+		ID        int32   `xorm:"id" json:"pk autoincr id"`
 		RoleID    int32   `json:"role_id" xorm:"role_id default 0"`
 		ActionIDs []int32 `json:"action_ids" xorm:"action_ids"`
 	}
